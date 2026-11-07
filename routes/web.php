@@ -16,8 +16,8 @@ Route::middleware([
 
     Route::inertia('study-configuration', 'Study-Configuration')->name('study-configuration');
 
-    Route::get('metadata-configuration', [DocumentMetadataController::class, 'index'])->name('document-metadata.index');
-    
+    Route::get('metadata-configuration', [DocumentMetadataController::class, 'index'])->name('metadata-configuration.index');
+
     Route::post('metadata-configuration', [DocumentMetadataController::class, 'create'])->name('document-metadata.create');
 });
 

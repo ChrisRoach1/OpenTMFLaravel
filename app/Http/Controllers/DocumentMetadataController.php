@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\DocumentMetadata\CreateMetadataRequest;
+use App\Models\DocumentMetadata;
 use App\Models\MetadataType;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -13,17 +14,19 @@ class DocumentMetadataController extends Controller
     public function index(Request $request): Response
     {
         $metadataTypes = MetadataType::query()->get();
+        $documentMetadata = DocumentMetadata::query()->with('metadataType')->get();
 
-        return Inertia::render('Metdata-Configuration',
+        return Inertia::render('Metadata-Configuration',
             [
                 'metadataTypes' => $metadataTypes,
+                'documentMetadata' => $documentMetadata,
             ]);
     }
 
     public function create(CreateMetadataRequest $request)
     {
-        dd($request);
+        DocumentMetadata::create($request->validated());
 
-        return \response('test');
+        return redirect()->route('metadata-configuration.index');
     }
 }
