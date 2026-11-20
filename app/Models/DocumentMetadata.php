@@ -6,13 +6,14 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['title', 'metadata_type_id', 'is_required'])]
+#[Fillable(['title', 'metadata_type_id', 'is_required', 'options'])]
 class DocumentMetadata extends Model
 {
     protected function casts(): array
     {
         return [
             'is_required' => 'boolean',
+            'options' => 'array',
         ];
     }
 

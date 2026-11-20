@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DocumentMetadataController;
+use App\Http\Controllers\FileUploadController;
 use Illuminate\Support\Facades\Route;
 use Laravel\WorkOS\Http\Middleware\ValidateSessionWithWorkOS;
 
@@ -12,7 +13,7 @@ Route::middleware([
 ])->group(function () {
     Route::inertia('dashboard', 'Dashboard')->name('dashboard');
 
-    Route::inertia('file-upload', 'File-Upload')->name('file-upload');
+    Route::get('file-upload', [FileUploadController::class, 'index'])->name('file-upload');
 
     Route::inertia('study-configuration', 'Study-Configuration')->name('study-configuration');
 

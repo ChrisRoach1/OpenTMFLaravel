@@ -1,6 +1,7 @@
 type MetadataType = {
     id: number;
     display: string;
+    value: string;
 };
 
 type DocumentMetadata = {

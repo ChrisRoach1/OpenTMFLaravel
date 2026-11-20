@@ -17,7 +17,8 @@ class CreateMetadataRequest extends FormRequest
         return [
             'title' => ['required', 'string', 'max:255'],
             'metadata_type_id' => ['required', 'int'],
-            'is_required' => ['boolean', 'required']
+            'is_required' => ['boolean', 'required'],
+            'options' => ['array', 'nullable'],
         ];
     }
 }

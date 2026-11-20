@@ -34,13 +34,14 @@ const mainNavItems: NavItem[] = [
         title: 'Study Configuration',
         href: studyConfiguration(),
         icon: Settings,
-    },   
+    },
     {
-        title: 'Study Configuration',
+        title: 'Metadata Configuration',
         href: metadataConfiguration.index(),
         icon: Settings,
-    },        
+    },
 ];
+
 
 </script>
 

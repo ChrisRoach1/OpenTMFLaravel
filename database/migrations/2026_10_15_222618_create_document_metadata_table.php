@@ -17,9 +17,11 @@ return new class extends Migration
             $table->text('title')->nullable(false);
             $table->foreignIdFor(MetadataType::class);
             $table->boolean('is_required')->nullable(false);
+            $table->json('options')->nullable();
             $table->timestamps();
         });
     }
+
 
     /**
      * Reverse the migrations.
