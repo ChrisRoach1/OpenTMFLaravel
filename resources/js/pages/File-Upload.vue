@@ -1,28 +1,18 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
-import { computed, Ref, ref, watchEffect } from 'vue';
+import { Head, useForm } from '@inertiajs/vue3';
+import { computed, ref, watchEffect } from 'vue';
 import Heading from '@/components/Heading.vue';
+import InputError from '@/components/InputError.vue';
+import MetadataField from '@/components/MetadataField.vue';
 import PdfDropzone from '@/components/PdfDropzone.vue';
-import Input from '@/components/ui/input/Input.vue';
-import Label from '@/components/ui/label/Label.vue';
 import { cn } from '@/lib/utils';
 import { fileUpload } from '@/routes';
-import Select from '@/components/ui/select/Select.vue';
-import SelectTrigger from '@/components/ui/select/SelectTrigger.vue';
-import SelectValue from '@/components/ui/select/SelectValue.vue';
-import SelectContent from '@/components/ui/select/SelectContent.vue';
-import SelectGroup from '@/components/ui/select/SelectGroup.vue';
-import SelectLabel from '@/components/ui/select/SelectLabel.vue';
-import SelectItem from '@/components/ui/select/SelectItem.vue';
-import PopoverTrigger from '@/components/ui/popover/PopoverTrigger.vue';
 import Button from '@/components/ui/button/Button.vue';
-import { CalendarIcon } from '@lucide/vue';
-import PopoverContent from '@/components/ui/popover/PopoverContent.vue';
-import Calendar from '@/components/ui/calendar/Calendar.vue';
-import Popover from '@/components/ui/popover/Popover.vue';
-import { DateFormatter, DateValue, getLocalTimeZone, today } from '@internationalized/date'
-import Textarea from '@/components/ui/textarea/Textarea.vue';
-import Checkbox from '@/components/ui/checkbox/Checkbox.vue';
+import TmfLevelSelector from '@/components/tmf-level-selector.vue';
+
+const { documentMetadata = [] } = defineProps<{
+    documentMetadata?: DocumentMetadata[];
+}>();
 
 defineOptions({
     layout: {
@@ -35,9 +25,51 @@ defineOptions({
     },
 });
 
-const { documentMetadata = [] } = defineProps<{
-    documentMetadata?: DocumentMetadata[];
-}>();
+const form = useForm({
+    tmfLevel: '',
+    site: '',
+    country: '',
+    metadata: documentMetadata.map(
+        (property): MetadataFormItem => ({
+            metadataId: property.id,
+            metadataName: property.title,
+            inputType: property.metadata_type.value,
+            value: property.metadata_type.value === 'Checkbox' ? false : '',
+        }),
+    ),
+});
+
+/**
+ * Flag every required field that has no value. A required checkbox must be checked.
+ */
+const validateRequiredFields = (): boolean => {
+    form.clearErrors();
+
+    if (form.tmfLevel === '') {
+        form.setError('tmfLevel', 'TMF level is required.');
+    }
+
+    form.metadata.forEach((item, index) => {
+        const property = documentMetadata[index];
+
+        if (property.is_required && (item.value === '' || item.value === false)) {
+            form.setError(
+                `metadata.${index}.value`,
+                `${property.title} is required.`,
+            );
+        }
+    });
+
+    return !form.hasErrors;
+};
+
+const submit = () => {
+    if (!validateRequiredFields()) {
+        return;
+    }
+
+    console.log('Form submitted:', form.data());
+};
 
 const selectedFiles = ref<File[]>([]);
 
@@ -63,12 +95,6 @@ watchEffect((onCleanup) => {
 
     onCleanup(() => URL.revokeObjectURL(objectUrl));
 });
-
-const defaultPlaceholder = today(getLocalTimeZone())
-const date = ref() as Ref<DateValue>
-const df = new DateFormatter('en-US', {
-  dateStyle: 'long',
-})
 
 </script>
 
@@ -116,162 +142,35 @@ const df = new DateFormatter('en-US', {
                 description="Fill in the details for the selected documents."
             />
 
-            <div
+            <form
+                novalidate
                 class="flex min-h-0 flex-1 flex-col gap-5 overflow-auto rounded-xl border border-sidebar-border/70 p-5 dark:border-sidebar-border"
+                @submit.prevent="submit"
             >
-                <template
-                    v-for="property in documentMetadata"
-                    :key="property.id"
-                >
-                    <div
-                        v-if="property.metadata_type.value === 'Text'"
-                        class="grid gap-2"
-                    >
-                        <Label
-                            :for="`document-metadata-${property.id}`"
-                            class="gap-0.5"
-                        >
-                            {{ property.title }}
-                            <span
-                                v-if="property.is_required"
-                                class="text-destructive"
-                                aria-hidden="true"
-                                >*</span
-                            >
-                        </Label>
-                        <Input
-                            :id="`document-metadata-${property.id}`"
-                            :name="`metadata[${property.id}]`"
-                            type="text"
-                            :placeholder="`Enter ${property.title.toLowerCase()}`"
-                            :required="property.is_required"
-                            autocomplete="off"
-                            class="h-10 bg-background"
-                        />
-                    </div>
+                <div class="grid gap-2">
+                    <TmfLevelSelector
+                        v-model="form.tmfLevel"
+                        :isForm="true"
+                        @update:model-value="form.clearErrors('tmfLevel')"
+                    />
+                    <InputError :message="form.errors.tmfLevel" />
+                </div>
 
-                    <div
-                        v-if="property.metadata_type.value === 'TextArea'"
-                        class="grid gap-2"
-                    >
-                        <Label
-                            :for="`document-metadata-${property.id}`"
-                            class="gap-0.5"
-                        >
-                            {{ property.title }}
-                            <span
-                                v-if="property.is_required"
-                                class="text-destructive"
-                                aria-hidden="true"
-                                >*</span
-                            >
-                        </Label>
-                        <Textarea
-                            :id="`document-metadata-${property.id}`"
-                            :name="`metadata[${property.id}]`"
-                            type="text"
-                            :placeholder="`Enter ${property.title.toLowerCase()}`"
-                            :required="property.is_required"
-                            autocomplete="off"
-                            class="h-10 bg-background"
-                        />
-                    </div>
+                <MetadataField
+                    v-for="(item, index) in form.metadata"
+                    :key="item.metadataId"
+                    v-model="item.value"
+                    :property="documentMetadata[index]"
+                    :error="form.errors[`metadata.${index}.value`]"
+                    @update:model-value="
+                        form.clearErrors(`metadata.${index}.value`)
+                    "
+                />
 
-                    <Label
-                        v-if="property.metadata_type.value === 'Checkbox'"
-                        :for="`document-metadata-${property.id}`"
-                        class="h-10 cursor-pointer gap-3 rounded-md border border-input bg-background px-3 font-normal shadow-xs transition-colors hover:bg-muted/40"
-                    >
-                        <Checkbox
-                            :id="`document-metadata-${property.id}`"
-                            :name="`metadata[${property.id}]`"
-                            :required="property.is_required"
-                        />
-                        <span class="inline-flex items-center gap-0.5">
-                            {{ property.title }}
-                            <span
-                                v-if="property.is_required"
-                                class="text-destructive"
-                                aria-hidden="true"
-                                >*</span
-                            >
-                        </span>
-                    </Label>
-
-                    <div
-                        v-if="property.metadata_type.value === 'Select'"
-                        class="grid gap-2"
-                    >
-                        <Label
-                            :for="`document-metadata-${property.id}`"
-                            class="gap-0.5"
-                        >
-                            {{ property.title }}
-                            <span
-                                v-if="property.is_required"
-                                class="text-destructive"
-                                aria-hidden="true"
-                                >*</span
-                            >
-                        </Label>
-                        <Select>
-                        <SelectTrigger class="w-80 h-10 bg-background":id="`document-metadata-${property.id}`" :name="`metadata[${property.id}]`">
-                        <SelectValue placeholder="Select a fruit" :required="property.is_required" />
-                        </SelectTrigger>
-                        <SelectContent>
-                        <SelectGroup>
-                            <template v-for="option in property.options">
-                                <SelectItem value={{ option }}>
-                                    {{ option }}
-                                </SelectItem>
-                            </template>
-                        </SelectGroup>
-                        </SelectContent>
-                    </Select>
-
-                    </div>
-
-                    <div
-                        v-if="property.metadata_type.value === 'Date'"
-                        class="grid gap-2"
-                    >
-                        <Label
-                            :for="`document-metadata-${property.id}`"
-                            class="gap-0.5"
-                        >
-                            {{ property.title }}
-                            <span
-                                v-if="property.is_required"
-                                class="text-destructive"
-                                aria-hidden="true"
-                                >*</span
-                            >
-                        </Label>
-                        <Popover v-slot="{ close }">
-                        <PopoverTrigger as-child>
-                        <Button
-                            variant="outline"
-                            :class="cn('w-60 justify-start text-left font-normal', !date && 'text-muted-foreground')"
-                        >
-                            <CalendarIcon />
-                            {{ date ? df.format(date.toDate(getLocalTimeZone())) : "Pick a date" }}
-                        </Button>
-                        </PopoverTrigger>
-                        <PopoverContent class="w-auto p-0" align="start">
-                        <Calendar
-                            v-model="date"
-                            :default-placeholder="defaultPlaceholder"
-                            layout="month-and-year"
-                            initial-focus
-                            @update:model-value="close"
-                        />
-                        </PopoverContent>
-                    </Popover>
-
-                    </div>
-
-                </template>
-            </div>
+                <Button type="submit" :disabled="form.processing">
+                    {{ selectedFiles.length > 1 ? 'Index files' : 'Index file' }}
+                </Button>
+            </form>
         </section>
     </div>
 </template>

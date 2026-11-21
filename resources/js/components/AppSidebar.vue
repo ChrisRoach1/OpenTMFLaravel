@@ -14,10 +14,11 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { dashboard, studyConfiguration, fileUpload } from '@/routes';
+import { dashboard, fileUpload } from '@/routes';
 import type { NavItem } from '@/types';
 import MetadataConfiguration from '@/pages/Metadata-Configuration.vue';
 import metadataConfiguration from '@/routes/metadata-configuration';
+import studyConfiguration from '@/routes/study-configuration';
 
 const mainNavItems: NavItem[] = [
     {
@@ -32,7 +33,7 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Study Configuration',
-        href: studyConfiguration(),
+        href: studyConfiguration.index(),
         icon: Settings,
     },
     {

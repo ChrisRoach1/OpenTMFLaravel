@@ -12,3 +12,12 @@ type DocumentMetadata = {
     options: string[];
     is_required: boolean;
 };
+
+type MetadataValue = string | boolean;
+
+type MetadataFormItem = {
+    metadataId: number;
+    metadataName: string;
+    inputType: string;
+    value: MetadataValue;
+};

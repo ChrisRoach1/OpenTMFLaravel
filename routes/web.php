@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DocumentMetadataController;
 use App\Http\Controllers\FileUploadController;
+use App\Http\Controllers\StudyConfigurationController;
 use Illuminate\Support\Facades\Route;
 use Laravel\WorkOS\Http\Middleware\ValidateSessionWithWorkOS;
 
@@ -15,7 +16,10 @@ Route::middleware([
 
     Route::get('file-upload', [FileUploadController::class, 'index'])->name('file-upload');
 
-    Route::inertia('study-configuration', 'Study-Configuration')->name('study-configuration');
+    Route::get('study-configuration', [StudyConfigurationController::class, 'index'])->name('study-configuration.index');
+
+    Route::patch('study-configuration/{study}', [StudyConfigurationController::class, 'update'])->name('study-configuration.update');
+
 
     Route::get('metadata-configuration', [DocumentMetadataController::class, 'index'])->name('metadata-configuration.index');
 

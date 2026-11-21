@@ -8,6 +8,19 @@ import {
 import AddMetadata from '@/components/metadataconfiguration/add-metadata.vue';
 import MetadataTable from '@/components/metadataconfiguration/metadata-table.vue';
 import { ref } from 'vue';
+import Heading from '@/components/Heading.vue';
+import metadataConfiguration from '@/routes/metadata-configuration';
+
+defineOptions({
+    layout: {
+        breadcrumbs: [
+            {
+                title: 'Metadata Configuration',
+                href: metadataConfiguration.index(),
+            },
+        ],
+    },
+});
 
 const { metadataTypes = [], documentMetadata = [] } = defineProps<{
     metadataTypes?: MetadataType[];
@@ -20,6 +33,10 @@ const open = ref(false);
 
 <template>
     <div class="space-y-6 m-6">
+        <Heading
+            title="Document Metadata"
+            description="Set the custom metadata to be collected."
+        />        
         <MetadataTable :documentMetadata="documentMetadata">
             <template #toolbar>
                 <Dialog v-model:open="open">
