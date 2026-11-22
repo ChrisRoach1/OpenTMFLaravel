@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\DocumentMetadata\CreateMetadataRequest;
+use App\Http\Requests\DocumentMetadata\UpdateMetadataRequest;
 use App\Models\DocumentMetadata;
 use App\Models\MetadataType;
 use Illuminate\Http\Request;
@@ -20,12 +21,28 @@ class DocumentMetadataController extends Controller
             [
                 'metadataTypes' => $metadataTypes,
                 'documentMetadata' => $documentMetadata,
+                'documentsAdded' => false, // TODO: replace with actual logic
             ]);
     }
 
     public function create(CreateMetadataRequest $request)
     {
         DocumentMetadata::create($request->validated());
+
+        return redirect()->route('metadata-configuration.index');
+    }
+
+    public function update(UpdateMetadataRequest $request, DocumentMetadata $documentMetadata)
+    {
+        $documentMetadata->update($request->validated());
+        $documentMetadata->save();
+
+        return redirect()->route('metadata-configuration.index');
+    }
+
+    public function delete(DocumentMetadata $documentMetadata)
+    {
+        $documentMetadata->delete();
 
         return redirect()->route('metadata-configuration.index');
     }

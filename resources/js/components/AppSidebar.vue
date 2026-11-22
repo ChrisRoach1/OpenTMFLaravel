@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { BookOpen, FileUpIcon, FolderGit2, LayoutGrid, Settings } from '@lucide/vue';
+import { BookOpen, FileUpIcon, FolderGit2, LayoutGrid, MapIcon, MapPin, Settings } from '@lucide/vue';
 import AppLogo from '@/components/AppLogo.vue';
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
@@ -16,9 +16,10 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard, fileUpload } from '@/routes';
 import type { NavItem } from '@/types';
-import MetadataConfiguration from '@/pages/Metadata-Configuration.vue';
 import metadataConfiguration from '@/routes/metadata-configuration';
 import studyConfiguration from '@/routes/study-configuration';
+import countryConfiguration from '@/routes/country-configuration';
+import siteConfiguration from '@/routes/site-configuration';
 
 const mainNavItems: NavItem[] = [
     {
@@ -30,7 +31,10 @@ const mainNavItems: NavItem[] = [
         title: 'File Upload',
         href: fileUpload(),
         icon: FileUpIcon,
-    },
+    }     
+];
+
+const configNavItems: NavItem[] = [
     {
         title: 'Study Configuration',
         href: studyConfiguration.index(),
@@ -41,6 +45,16 @@ const mainNavItems: NavItem[] = [
         href: metadataConfiguration.index(),
         icon: Settings,
     },
+    {
+        title: 'Country Configuration',
+        href: countryConfiguration.index(),
+        icon: MapIcon,
+    },    
+    {
+        title: 'Site Configuration',
+        href: siteConfiguration.index(),
+        icon: MapPin,
+    },        
 ];
 
 
@@ -61,7 +75,7 @@ const mainNavItems: NavItem[] = [
         </SidebarHeader>
 
         <SidebarContent>
-            <NavMain :items="mainNavItems" />
+            <NavMain :items="mainNavItems" :config-items="configNavItems" />
         </SidebarContent>
 
         <SidebarFooter>

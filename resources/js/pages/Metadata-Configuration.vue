@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/dialog';
 import AddMetadata from '@/components/metadataconfiguration/add-metadata.vue';
 import MetadataTable from '@/components/metadataconfiguration/metadata-table.vue';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import Heading from '@/components/Heading.vue';
 import metadataConfiguration from '@/routes/metadata-configuration';
 
@@ -22,13 +22,20 @@ defineOptions({
     },
 });
 
-const { metadataTypes = [], documentMetadata = [] } = defineProps<{
+const { metadataTypes = [], documentMetadata = [], documentsAdded = false } = defineProps<{
     metadataTypes?: MetadataType[];
     documentMetadata?: DocumentMetadata[];
+    documentsAdded: boolean;
+
 }>();
 
 const open = ref(false);
 
+watch(() => documentsAdded, (locked) => {
+    if (locked) {
+        open.value = false;
+    }
+});
 </script>
 
 <template>
@@ -37,11 +44,14 @@ const open = ref(false);
             title="Document Metadata"
             description="Set the custom metadata to be collected."
         />        
-        <MetadataTable :documentMetadata="documentMetadata">
+        <p v-if="documentsAdded" class="text-sm text-muted-foreground">
+            Documents have already been indexed, no changes can be made.
+        </p>
+        <MetadataTable :documentMetadata="documentMetadata" :metadata-types="metadataTypes" :documents-added="documentsAdded">
             <template #toolbar>
                 <Dialog v-model:open="open">
                     <DialogTrigger as-child>
-                        <Button variant="default" size="sm" class="h-8" data-test="add-metadata-button">Add new</Button>
+                        <Button variant="default" size="sm" class="h-8" :disabled="documentsAdded" data-test="add-metadata-button">Add new</Button>
                     </DialogTrigger>
                     <DialogContent>
                         <AddMetadata :metadataTypes="metadataTypes" @created="open = false" />

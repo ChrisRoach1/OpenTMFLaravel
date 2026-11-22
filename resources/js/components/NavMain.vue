@@ -12,6 +12,7 @@ import type { NavItem } from '@/types';
 
 defineProps<{
     items: NavItem[];
+    configItems: NavItem[];
 }>();
 
 const { isCurrentUrl } = useCurrentUrl();
@@ -35,4 +36,23 @@ const { isCurrentUrl } = useCurrentUrl();
             </SidebarMenuItem>
         </SidebarMenu>
     </SidebarGroup>
+
+    <SidebarGroup class="px-2 py-0">
+        <SidebarGroupLabel>Configuration</SidebarGroupLabel>
+        <SidebarMenu>
+            <SidebarMenuItem v-for="item in configItems" :key="item.title">
+                <SidebarMenuButton
+                    as-child
+                    :is-active="isCurrentUrl(item.href)"
+                    :tooltip="item.title"
+                >
+                    <Link :href="item.href">
+                        <component :is="item.icon" />
+                        <span>{{ item.title }}</span>
+                    </Link>
+                </SidebarMenuButton>
+            </SidebarMenuItem>
+        </SidebarMenu>
+    </SidebarGroup>
+    
 </template>

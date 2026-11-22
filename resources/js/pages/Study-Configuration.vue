@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 import Heading from '@/components/Heading.vue';
-import MetadataSetup from '@/components/metadata-setup.vue';
-import StudySetup from '@/components/study-setup.vue';
 import studyConfiguration from '@/routes/study-configuration';
+import StudySetup from '@/components/studyconfiguration/study-setup.vue';
 
 defineOptions({
     layout: {
